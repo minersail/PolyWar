@@ -13,6 +13,11 @@ body {
 	transition: transform 1s;
 }
 
+.projectile {
+	transition-timing-function: ease-in;
+	transition: transform 0.5s;
+}
+
 .red {
 	fill: red;	
 }

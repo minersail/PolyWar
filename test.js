@@ -21,9 +21,13 @@ class Unit {
 	}
 
 	move(dx, dy) {
-		this.x += dx;
-		this.y += dy;
-		document.getElementById(this.id).style.transform = `translate(${ this.x * TILE_SIZE }px, ${ this.y * TILE_SIZE }px)`;
+		this.moveTo(this.x + dx, this.y + dy);
+	}
+
+	moveTo(x, y) {
+		this.x = x;
+		this.y = y;
+		document.getElementById(this.id).style.transform = `translate(${ this.x * TILE_SIZE }px, ${ this.y * TILE_SIZE }px)`;		
 	}
 }
 
@@ -40,13 +44,15 @@ class Fighter extends Unit {
 	}
 
 	process() {
-		const target = this.findClosest();
-
-		if (dist(this.x, this.y, target.x, target.y) < 0) {
-
+		const target = this.findTarget();
+		if (target != null) {
+			console.log(target);
+			console.log(target.x, target.y);
+			this.launchProjectiles(target.x, target.y);
 		}
 		else {
-			const moveDir = getDirection(target.y - this.y, target.x - this.x);
+			const closest = this.findClosest();
+			const moveDir = getDirection(closest.y - this.y, closest.x - this.x);
 			this.move(moveDir.x, moveDir.y);
 		}
 	}
@@ -60,11 +66,40 @@ class Fighter extends Unit {
 
 		return MAP[Math.floor(index / MAP_WIDTH)][index % MAP_WIDTH];
 	}
+
+ 	// Overridden
+	findTarget() {
+		return null;
+	}
+
+	// Overridden
+	launchProjectiles(targetX, targetY) {}
+}
+
+class Projectile extends Unit {
+	constructor(x, y, id, team) {
+		super(x, y, id, team);
+		document.getElementById(id).classList.add("projectile");
+	}
+
+	launch(targetX, targetY) {
+		this.moveTo(targetX, targetY);
+		window.setTimeout(() => { document.getElementById("arena").removeChild(document.getElementById(this.id)); }, 1000);
+	}
 }
 
 class CircleFighter extends Fighter {
 	constructor(x, y, team) {
 		super(x, y, createCircle(x, y, 1, team), team);
+	}
+
+	findTarget() {
+		return MAP.flat().find(x => x !== null && x.team !== this.team && dist(this.x, this.y, x.x, x.y) < 3) || null;
+	}
+
+	launchProjectiles(targetX, targetY) {
+		const projectile = new CircleProjectile(this.x, this.y, this.team);
+		window.setTimeout(() => { projectile.launch(targetX, targetY) }, 100);
 	}
 }
 
@@ -72,27 +107,70 @@ class SquareFighter extends Fighter {
 	constructor(x, y, team) {
 		super(x, y, createSquare(x, y, 1, team), team);
 	}
+
+	findTarget() {
+		return this.checkSpot(this.y - 1, this.x - 1) || this.checkSpot(this.y - 1, this.x) || this.checkSpot(this.y - 1, this.x + 1) ||
+		this.checkSpot(this.y, this.x + 1) || this.checkSpot(this.y + 1, this.x + 1) || this.checkSpot(this.y + 1, this.x) ||
+		this.checkSpot(this.y + 1, this.x - 1) || this.checkSpot(this.y, this.x - 1) || null;
+	}
+
+	checkSpot(x, y) {
+		return (MAP[y] && MAP[y][x] && MAP[y][x].team !== this.team) ? MAP[y][x] : null;
+	}
+
+	launchProjectiles(targetX, targetY) {
+		let coords = [];
+
+		if (this.checkSpot(this.y - 1, this.x - 1) || this.checkSpot(this.y - 1, this.x) || this.checkSpot(this.y - 1, this.x + 1)) {
+			coords = [{ y: this.y - 1, x: this.x - 1 }, { y: this.y - 1, x: this.x }, { y: this.y - 1, x: this.x + 1 }];
+		}
+		else if (this.checkSpot(this.y, this.x + 1) || this.checkSpot(this.y + 1, this.x + 1)) {
+			coords = [{ y: this.y - 1, x: this.x + 1 }, { y: this.y, x: this.x + 1 }, { y: this.y + 1, x: this.x + 1 }];
+		}
+		else if (this.checkSpot(this.y + 1, this.x) || this.checkSpot(this.y + 1, this.x - 1)) {
+			coords = [{ y: this.y + 1, x: this.x - 1 }, { y: this.y + 1, x: this.x }, { y: this.y + 1, x: this.x + 1 }];
+		}
+		else if (this.checkSpot(this.y, this.x - 1)) {
+			coords = [{ y: this.y - 1, x: this.x - 1 }, { y: this.y, x: this.x - 1 }, { y: this.y + 1, x: this.x - 1 }];
+		}
+
+		for (const coord of coords) {
+			const projectile = new SquareProjectile(this.x, this.y, this.team);
+			window.setTimeout(() => { projectile.launch(coord.x, coord.y); }, 100);
+		}
+	}
 }
 
 class TriangleFighter extends Fighter {
 	constructor(x, y, team) {
 		super(x, y, createTriangle(x, y, 1, team), team);
 	}
+
+	findTarget() {
+		return MAP[this.y].find(x => x !== null && x.team !== this.team) ||
+		(MAP.find(arr => arr[this.x] !== null && arr[this.x].team !== this.team) && 
+			MAP.find(arr => arr[this.x] !== null && arr[this.x].team !== this.team)[this.x]) || null;
+	}
+
+	launchProjectiles(targetX, targetY) {
+		const projectile = new TriangleProjectile(this.x, this.y, this.team);
+		window.setTimeout(() => { projectile.launch(targetX, targetY) }, 100);
+	}
 }
 
-class CircleProjectile extends Unit {
+class CircleProjectile extends Projectile {
 	constructor(x, y, team) {
 		super(x, y, createCircle(x, y, 0.25, team), team);
 	}
 }
 
-class SquareProjectile extends Unit {
+class SquareProjectile extends Projectile {
 	constructor(x, y, team) {
 		super(x, y, createSquare(x, y, 0.25, team), team);
 	}
 }
 
-class TriangleProjectile extends Unit {
+class TriangleProjectile extends Projectile {
 	constructor(x, y, team) {
 		super(x, y, createTriangle(x, y, 0.25, team), team);
 	}
@@ -110,7 +188,7 @@ function createCircle(x, y, scale, team) {
 	circle.classList.add("unit");
 	circle.classList.add(COLORS[team]);
 
-	document.getElementById("arena").appendChild(circle);
+	document.getElementById("arena").insertBefore(circle, document.getElementById("bg").nextSibling);
 
 	return id;
 }
@@ -128,7 +206,7 @@ function createSquare(x, y, scale, team) {
 	square.classList.add("unit");
 	square.classList.add(COLORS[team]);
 
-	document.getElementById("arena").appendChild(square);
+	document.getElementById("arena").insertBefore(square, document.getElementById("bg").nextSibling);
 
 	return id;
 }
@@ -150,7 +228,7 @@ function createTriangle(x, y, scale, team) {
 	triangle.classList.add("unit");
 	triangle.classList.add(COLORS[team]);
 
-	document.getElementById("arena").appendChild(triangle);
+	document.getElementById("arena").insertBefore(triangle, document.getElementById("bg").nextSibling);
 
 	return id;
 }
@@ -212,5 +290,7 @@ window.onload = function() {
 	// }, 1000);
 
 	document.getElementById(e2.id).onclick = () => { e2.move(1, 1) };
-	document.getElementById(a1.id).onclick = () => { a1.process(); };
+	document.getElementById(a2.id).onclick = () => { a2.process(); };
+	document.getElementById(a3.id).onclick = () => { a3.process(); };
+	document.getElementById(a4.id).onclick = () => { a4.process(); };
 }
