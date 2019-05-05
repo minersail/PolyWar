@@ -1,0 +1,24 @@
+<html>
+<head>
+	<link type="text/css" rel="stylesheet" href="test.css">
+	<script src="test.js"></script>
+</head>
+<body>
+	<svg id="arena" height="800" width="800">
+		<defs>
+			<pattern id="smallGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+				<path d="M 0,0 l 100,0 0,100 -100,0 0,-100" fill="none" stroke="gray" stroke-width="1"/>
+			</pattern>
+			<pattern id="grid" width="800" height="800" patternUnits="userSpaceOnUse">
+				<rect width="800" height="800" fill="url(#smallGrid)"/>
+				<path d="M 0,0 l 800,0 0,800 -800,0 0,-800" fill="none" stroke="gray" stroke-width="5"/>
+			</pattern>
+		</defs>
+
+		<rect width="100%" height="100%" fill="url(#grid)" />
+		<!-- <rect x="10" y="10" width="80" height="80" class="red" onclick="animateBox();"/>
+	  	<circle cx="50" cy="50" r="40" class="red" />
+	  	<polygon points="50 11, 90 80, 10 80" class="red"/> -->
+	</svg>
+</body>
+</html>

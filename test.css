@@ -1,0 +1,26 @@
+body {
+	margin: 0;
+}
+
+#arena {
+	margin: 200px;
+}
+
+.unit {
+	stroke: black;
+	stroke-width: 3;
+
+	transition: transform 1s;
+}
+
+.red {
+	fill: red;	
+}
+
+.blue {
+	fill: blue;	
+}
+
+.green {
+	fill: green;	
+}
