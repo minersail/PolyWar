@@ -1,11 +1,12 @@
 const TILE_SIZE = 100;
-const MAP_HEIGHT = 8;
-const MAP_WIDTH = 8;
+const MAP_HEIGHT = 6;
+const MAP_WIDTH = 6;
 
 const MAP = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(null));
 const COLORS = ["red", "green", "blue"];
 
 let global_id = 0;
+let FIGHTERS = [];
 
 class Unit {
 	x = 0;
@@ -32,9 +33,14 @@ class Unit {
 }
 
 class Fighter extends Unit {
-	constructor(x, y, id, team) {
+	maxHealth = 100;
+	health = 100;
+
+	constructor(x, y, id, team, health) {
 		super(x, y, id, team);
 		MAP[y][x] = this;
+		this.health = health;
+		this.maxHealth = health;
 	}
 
 	move(dx, dy) {
@@ -46,14 +52,14 @@ class Fighter extends Unit {
 	process() {
 		const target = this.findTarget();
 		if (target != null) {
-			console.log(target);
-			console.log(target.x, target.y);
 			this.launchProjectiles(target.x, target.y);
 		}
 		else {
 			const closest = this.findClosest();
 			const moveDir = getDirection(closest.y - this.y, closest.x - this.x);
-			this.move(moveDir.x, moveDir.y);
+			if (!MAP[this.y + moveDir.y][this.x + moveDir.x]) {
+				this.move(moveDir.x, moveDir.y);
+			}
 		}
 	}
 
@@ -67,6 +73,18 @@ class Fighter extends Unit {
 		return MAP[Math.floor(index / MAP_WIDTH)][index % MAP_WIDTH];
 	}
 
+	damage(amt) {
+		this.health -= amt;
+		if (this.health <= 0) {
+			MAP[this.y][this.x] = null;
+			FIGHTERS = FIGHTERS.filter(f => f.id !== this.id);
+			document.getElementById("arena").removeChild(document.getElementById(this.id));
+			return;
+		}
+
+		document.getElementById(this.id).style.opacity = this.health / this.maxHealth;
+	}
+
  	// Overridden
 	findTarget() {
 		return null;
@@ -77,20 +95,28 @@ class Fighter extends Unit {
 }
 
 class Projectile extends Unit {
-	constructor(x, y, id, team) {
+	damage = 0;
+
+	constructor(x, y, id, team, damage) {
 		super(x, y, id, team);
 		document.getElementById(id).classList.add("projectile");
+		this.damage = damage;
 	}
 
 	launch(targetX, targetY) {
 		this.moveTo(targetX, targetY);
-		window.setTimeout(() => { document.getElementById("arena").removeChild(document.getElementById(this.id)); }, 1000);
+		window.setTimeout(() => {
+			if (MAP[targetY][targetX] && MAP[targetY][targetX].team !== this.team) {
+				MAP[targetY][targetX].damage(this.damage);
+			}
+			document.getElementById("arena").removeChild(document.getElementById(this.id));
+		}, 1000);
 	}
 }
 
 class CircleFighter extends Fighter {
 	constructor(x, y, team) {
-		super(x, y, createCircle(x, y, 1, team), team);
+		super(x, y, createCircle(x, y, 1, team), team, 150);
 	}
 
 	findTarget() {
@@ -105,13 +131,13 @@ class CircleFighter extends Fighter {
 
 class SquareFighter extends Fighter {
 	constructor(x, y, team) {
-		super(x, y, createSquare(x, y, 1, team), team);
+		super(x, y, createSquare(x, y, 1, team), team, 400);
 	}
 
 	findTarget() {
-		return this.checkSpot(this.y - 1, this.x - 1) || this.checkSpot(this.y - 1, this.x) || this.checkSpot(this.y - 1, this.x + 1) ||
-		this.checkSpot(this.y, this.x + 1) || this.checkSpot(this.y + 1, this.x + 1) || this.checkSpot(this.y + 1, this.x) ||
-		this.checkSpot(this.y + 1, this.x - 1) || this.checkSpot(this.y, this.x - 1) || null;
+		return this.checkSpot(this.x - 1, this.y - 1) || this.checkSpot(this.x - 1, this.y) || this.checkSpot(this.x - 1, this.y + 1) ||
+		this.checkSpot(this.x, this.y + 1) || this.checkSpot(this.x + 1, this.y + 1) || this.checkSpot(this.x + 1, this.y) ||
+		this.checkSpot(this.x + 1, this.y - 1) || this.checkSpot(this.x, this.y - 1) || null;
 	}
 
 	checkSpot(x, y) {
@@ -121,16 +147,16 @@ class SquareFighter extends Fighter {
 	launchProjectiles(targetX, targetY) {
 		let coords = [];
 
-		if (this.checkSpot(this.y - 1, this.x - 1) || this.checkSpot(this.y - 1, this.x) || this.checkSpot(this.y - 1, this.x + 1)) {
+	 	if (this.checkSpot(this.x, this.y - 1)) {
 			coords = [{ y: this.y - 1, x: this.x - 1 }, { y: this.y - 1, x: this.x }, { y: this.y - 1, x: this.x + 1 }];
 		}
-		else if (this.checkSpot(this.y, this.x + 1) || this.checkSpot(this.y + 1, this.x + 1)) {
+		else if (this.checkSpot(this.x + 1, this.y) || this.checkSpot(this.x + 1, this.y - 1)) {
 			coords = [{ y: this.y - 1, x: this.x + 1 }, { y: this.y, x: this.x + 1 }, { y: this.y + 1, x: this.x + 1 }];
 		}
-		else if (this.checkSpot(this.y + 1, this.x) || this.checkSpot(this.y + 1, this.x - 1)) {
+		else if (this.checkSpot(this.x, this.y + 1) || this.checkSpot(this.x + 1, this.y + 1)) {
 			coords = [{ y: this.y + 1, x: this.x - 1 }, { y: this.y + 1, x: this.x }, { y: this.y + 1, x: this.x + 1 }];
 		}
-		else if (this.checkSpot(this.y, this.x - 1)) {
+		else if (this.checkSpot(this.x - 1, this.y - 1) || this.checkSpot(this.x - 1, this.y) || this.checkSpot(this.x - 1, this.y + 1)) {
 			coords = [{ y: this.y - 1, x: this.x - 1 }, { y: this.y, x: this.x - 1 }, { y: this.y + 1, x: this.x - 1 }];
 		}
 
@@ -143,7 +169,7 @@ class SquareFighter extends Fighter {
 
 class TriangleFighter extends Fighter {
 	constructor(x, y, team) {
-		super(x, y, createTriangle(x, y, 1, team), team);
+		super(x, y, createTriangle(x, y, 1, team), team, 100);
 	}
 
 	findTarget() {
@@ -160,19 +186,19 @@ class TriangleFighter extends Fighter {
 
 class CircleProjectile extends Projectile {
 	constructor(x, y, team) {
-		super(x, y, createCircle(x, y, 0.25, team), team);
+		super(x, y, createCircle(x, y, 0.25, team), team, 50);
 	}
 }
 
 class SquareProjectile extends Projectile {
 	constructor(x, y, team) {
-		super(x, y, createSquare(x, y, 0.25, team), team);
+		super(x, y, createSquare(x, y, 0.25, team), team, 50);
 	}
 }
 
 class TriangleProjectile extends Projectile {
 	constructor(x, y, team) {
-		super(x, y, createTriangle(x, y, 0.25, team), team);
+		super(x, y, createTriangle(x, y, 0.25, team), team, 100);
 	}
 }
 
@@ -238,7 +264,8 @@ function dist(x1, y1, x2, y2) {
 }
 
 function getDirection(dx, dy) {
-	const angle = Math.atan2(dy, dx) / Math.PI * 180;
+	let angle = Math.atan2(dy, dx) / Math.PI * 180;
+	if (angle < 0) angle += 360;
 
 	if (angle < 22.5) { // "S";
 		return { x: 0, y: 1}
@@ -265,32 +292,38 @@ function getDirection(dx, dy) {
 		return { x: -1, y: 1 }
 	}
 	else { // "S";
-
+		return { x: 0, y: 1}
 	}
 }
 
 window.onload = function() {
-	e1 = new CircleFighter(0, 0, 0);
-	e2 = new TriangleFighter(1, 0, 0);
-	e4 = new SquareFighter(2, 0, 0);
-	e3 = new CircleFighter(3, 0, 0);
-	a1 = new CircleFighter(0, 7, 1);
-	a2 = new TriangleFighter(1, 7, 1);
-	a4 = new SquareFighter(2, 7, 1);
-	a3 = new CircleFighter(3, 7, 1);
-	// c5 = new TriangleProjectile(3, 2, 0);
-	// c6 = new CircleProjectile(4, 2, 0);
-	// c7 = new SquareProjectile(1, 0, 0);
+	FIGHTERS = [
+		new CircleFighter(0, 0, 0),
+		new CircleFighter(0, 5, 1),
+		new TriangleFighter(1, 0, 0),
+		new TriangleFighter(1, 5, 1),
+		new SquareFighter(2, 0, 0),
+		new SquareFighter(2, 5, 1),
+		new CircleFighter(3, 0, 0),
+		new CircleFighter(3, 5, 1)
+	];
 
-	// window.setTimeout(() => {
-	// 	c1.move(2, 2);
-	// 	window.setTimeout(() => {
-	// 		c2.move(2, 0);
-	// 	}, 1000);	
-	// }, 1000);
+	window.setTimeout(() => {
+		queueAction(0);
+	}, 100);
 
-	document.getElementById(e2.id).onclick = () => { e2.move(1, 1) };
-	document.getElementById(a2.id).onclick = () => { a2.process(); };
-	document.getElementById(a3.id).onclick = () => { a3.process(); };
-	document.getElementById(a4.id).onclick = () => { a4.process(); };
+	// document.getElementById(e2.id).onclick = () => { e2.move(1, 1) };
+	// document.getElementById(a2.id).onclick = () => { a2.process(); };
+	// document.getElementById(a3.id).onclick = () => { a3.process(); };
+	// document.getElementById(a4.id).onclick = () => { a4.process(); };
+}
+
+function queueAction(index) {
+	if (FIGHTERS[index]) {
+		FIGHTERS[index].process();
+	}
+
+	window.setTimeout(() => {
+		queueAction((index + 1) % FIGHTERS.length);
+	}, 1000);
 }
