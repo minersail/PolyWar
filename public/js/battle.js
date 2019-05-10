@@ -299,23 +299,18 @@ function getDirection(dx, dy) {
 window.onload = function() {
 	FIGHTERS = [
 		new CircleFighter(0, 0, 0),
-		new CircleFighter(0, 5, 1),
+		new CircleFighter(3, 5, 1),
 		new TriangleFighter(1, 0, 0),
-		new TriangleFighter(1, 5, 1),
+		new TriangleFighter(4, 5, 1),
 		new SquareFighter(2, 0, 0),
 		new SquareFighter(2, 5, 1),
 		new CircleFighter(3, 0, 0),
-		new CircleFighter(3, 5, 1)
+		new CircleFighter(5, 5, 1)
 	];
 
 	window.setTimeout(() => {
 		queueAction(0);
 	}, 100);
-
-	// document.getElementById(e2.id).onclick = () => { e2.move(1, 1) };
-	// document.getElementById(a2.id).onclick = () => { a2.process(); };
-	// document.getElementById(a3.id).onclick = () => { a3.process(); };
-	// document.getElementById(a4.id).onclick = () => { a4.process(); };
 }
 
 function queueAction(index) {
