@@ -12,7 +12,8 @@ var user = new mongoose.Schema({
     },
     password: {
         type: String
-    }
+    },
+    squads: [Squadron]
 });
 
 var squadron = new mongoose.Schema({
@@ -27,21 +28,6 @@ var squadron = new mongoose.Schema({
     }, 
     wins: {
         type: Number
-    }
-})
-
-var comments = new mongoose.Schema({
-    id: {
-        type: Number
-    },
-    message: {
-        type: String
-    },
-    author: {
-        type: Number
-    },
-    timestamp: {
-        type: String
     }
 })
 
