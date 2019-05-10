@@ -30,16 +30,6 @@ var squadron = new mongoose.Schema({
     }
 })
 
-var battle = new mongoose.Schema({
-    home_team: {
-        type: Number
-    },
-    away_team: {
-        type: Number
-    },
-    comments: [comments]
-})
-
 var comments = new mongoose.Schema({
     id: {
         type: Number
@@ -53,6 +43,16 @@ var comments = new mongoose.Schema({
     timestamp: {
         type: String
     }
+})
+
+var battle = new mongoose.Schema({
+    home_team: {
+        type: Number
+    },
+    away_team: {
+        type: Number
+    },
+    comments: [comments]
 })
 
 var User = mongoose.model('User', user);
