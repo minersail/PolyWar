@@ -1,9 +1,10 @@
-const TILE_SIZE = 100;
+const TILE_SIZE = SHAPE_DIM;
+
 const MAP_HEIGHT = 6;
 const MAP_WIDTH = 6;
 
 const MAP = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(null));
-const COLORS = ["red", "green", "blue"];
+const COLORS = ["blue", "red"];
 
 let global_id = 0;
 let FIGHTERS = [];
@@ -79,6 +80,7 @@ class Fighter extends Unit {
 			MAP[this.y][this.x] = null;
 			FIGHTERS = FIGHTERS.filter(f => f.id !== this.id);
 			document.getElementById("arena").removeChild(document.getElementById(this.id));
+			checkWin();
 			return;
 		}
 
@@ -203,14 +205,10 @@ class TriangleProjectile extends Projectile {
 }
 
 function createCircle(x, y, scale, team) {
-	const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+	const circle = svgCircle(x, y, scale, document);
 	const id = `unit${ global_id++ }`;
 
 	circle.setAttribute("id", id);
-	circle.setAttribute("cx", TILE_SIZE / 2);
-	circle.setAttribute("cy", TILE_SIZE / 2);
-	circle.setAttribute("r", 40 * scale);
-	circle.setAttribute("style", `transform: translate(${ x * TILE_SIZE }px, ${ y * TILE_SIZE }px)`);
 	circle.classList.add("unit");
 	circle.classList.add(COLORS[team]);
 
@@ -220,15 +218,10 @@ function createCircle(x, y, scale, team) {
 }
 
 function createSquare(x, y, scale, team) {
-	const square = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+	const square = svgSquare(x, y, scale, document);
 	const id = `unit${ global_id++ }`;
 
 	square.setAttribute("id", id);
-	square.setAttribute("x", (TILE_SIZE - (80 * scale)) / 2);
-	square.setAttribute("y", (TILE_SIZE - (80 * scale)) / 2);
-	square.setAttribute("width", 80 * scale);
-	square.setAttribute("height", 80 * scale);
-	square.setAttribute("style", `transform: translate(${ x * TILE_SIZE }px, ${ y * TILE_SIZE }px)`);
 	square.classList.add("unit");
 	square.classList.add(COLORS[team]);
 
@@ -238,19 +231,10 @@ function createSquare(x, y, scale, team) {
 }
 
 function createTriangle(x, y, scale, team) {
-	const triangle = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+	const triangle = svgTriangle(x, y, scale, document);
 	const id = `unit${ global_id++ }`;
 
-	const x1 = 50 * scale + (1 - scale) * TILE_SIZE / 2;
-	const y1 = 11 * scale + (1 - scale) * TILE_SIZE / 2;
-	const x2 = 90 * scale + (1 - scale) * TILE_SIZE / 2;
-	const y2 = 80 * scale + (1 - scale) * TILE_SIZE / 2;
-	const x3 = 10 * scale + (1 - scale) * TILE_SIZE / 2;
-	const y3 = 80 * scale + (1 - scale) * TILE_SIZE / 2;
-
 	triangle.setAttribute("id", id);
-	triangle.setAttribute("points", `${ x1 } ${ y1 }, ${ x2 } ${ y2 }, ${ x3 } ${ y3 }`);
-	triangle.setAttribute("style", `transform: translate(${ x * TILE_SIZE }px, ${ y * TILE_SIZE }px)`);
 	triangle.classList.add("unit");
 	triangle.classList.add(COLORS[team]);
 
@@ -296,17 +280,27 @@ function getDirection(dx, dy) {
 	}
 }
 
+let player1 = [0, 0, 0, 0, 1, 3, 3, 2, 0, 0, 2, 1];
+let player2 = [1, 3, 3, 0, 0, 0, 0, 0, 1, 2, 2, 0];
+
 window.onload = function() {
-	FIGHTERS = [
-		new CircleFighter(0, 0, 0),
-		new CircleFighter(3, 5, 1),
-		new TriangleFighter(1, 0, 0),
-		new TriangleFighter(4, 5, 1),
-		new SquareFighter(2, 0, 0),
-		new SquareFighter(2, 5, 1),
-		new CircleFighter(3, 0, 0),
-		new CircleFighter(5, 5, 1)
-	];
+	player1 = player1.map((x, i) =>
+		x === CIRCLE_ID ? { type: CIRCLE_ID, x: i % 6, y: Math.floor(i / 6) + 4, team: 0 } :
+		x === SQUARE_ID ? { type: SQUARE_ID, x: i % 6, y: Math.floor(i / 6) + 4, team: 0 } :		
+		x === TRIANGLE_ID ? { type: TRIANGLE_ID, x: i % 6, y: Math.floor(i / 6) + 4, team: 0 } : null
+	).filter(x => x !== null);
+	
+	player2 = player2.map((x, i) =>
+		x === CIRCLE_ID ? { type: CIRCLE_ID, x: 5 - (i % 6), y: 1 - Math.floor(i / 6), team: 1 } :
+		x === SQUARE_ID ? { type: SQUARE_ID, x: 5 - (i % 6), y: 1 - Math.floor(i / 6), team: 1 } :		
+		x === TRIANGLE_ID ? { type: TRIANGLE_ID, x: 5 - (i % 6), y: 1 - Math.floor(i / 6), team: 1 } : null
+	).filter(x => x !== null);
+
+	FIGHTERS = player1.flatMap((x, i) => [x, player2[i]]).map(x => 
+		x.type === CIRCLE_ID ? new CircleFighter(x.x, x.y, x.team) :
+		x.type === SQUARE_ID ? new SquareFighter(x.x, x.y, x.team) :
+		x.type === TRIANGLE_ID ? new TriangleFighter(x.x, x.y, x.team) : null	
+	);
 
 	window.setTimeout(() => {
 		queueAction(0);
@@ -321,4 +315,13 @@ function queueAction(index) {
 	window.setTimeout(() => {
 		queueAction((index + 1) % FIGHTERS.length);
 	}, 1000);
+}
+
+function checkWin() {
+	if (FIGHTERS.length === 0) {
+		document.getElementById("winText").innerText = "Tie!";
+	}
+	else if (FIGHTERS.reduce((acc, x) => x.team === FIGHTERS[0].team && acc, true)) {
+		document.getElementById("winText").innerText = FIGHTERS[0].team === 0 ? "You win!" : "You lose!";
+	}
 }

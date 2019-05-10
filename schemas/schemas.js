@@ -1,11 +1,11 @@
 var mongoose = require('mongoose');
 
 var user = new mongoose.Schema({
-    name: {
-        type: String
-    },
-    id: {
-        type: Number
+    username: {
+        type: String,
+        unique: true,
+        dropDups: true,
+        trim: true,
     },
     score: {
         type: Number
@@ -13,7 +13,7 @@ var user = new mongoose.Schema({
     password: {
         type: String
     },
-    squads: [Squadron]
+    //squads: [squadron]
 });
 
 var squadron = new mongoose.Schema({
@@ -38,19 +38,19 @@ var battle = new mongoose.Schema({
     away_team: {
         type: Number
     },
-    comments: [comments]
+    //comments: [comments]
 })
 
 var User = mongoose.model('User', user);
 var Squadron = mongoose.model('Squadron', squadron);
 var Battle = mongoose.model('Battle', battle);
-var Comments = mongoose.model('Comment', comments);
+//var Comments = mongoose.model('Comment', comments);
 
 module.exports = {
     User: User,
     Squadron: Squadron,
     Battle: Battle,
-    Comments: Comments
+    //Comments: Comments
 }
 
 // module.exports.User = User;

@@ -1,4 +1,6 @@
 var express = require('express');
+var session = require('express-session');
+
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var _ = require("underscore");
@@ -18,6 +20,7 @@ var encrypter = require("./password_handler.js")
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({secret:'XASDASDA'}));
 app.engine('handlebars', exphbs({
     defaultLayout: 'main',
     partialsDir: __dirname + '/views/partials/', //Need to change this.
@@ -25,9 +28,11 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 app.use('/public', express.static('public'));
 
+let db;
 //MongoDB Setup/Connection
-console.log(process.env.MONGODB)
-mongoose.connect(process.env.MONGODB, {useNewUrlParser: true});
+mongoose.connect(process.env.MONGODB, {useNewUrlParser: true}).then((res) => {
+    db = res;
+});
 mongoose.connection.on('error', function(e) {
     console.log(e);
     console.log('MongoDB Connection Error. Please make sure that MongoDB is running.');
@@ -46,30 +51,44 @@ app.get('/', function(req, res) {
 });
 
 //Allow the user to create their own profile
-app.post('/api/create_profile', function(req, res) { 
-
-    //Need to figure out how to prevent duplicate usernames!!!!
-
-    var salt = encrypter.salt(parseInt(req.body.id))
-    var hash = encrypter.hash(req.body.password, salt);
+app.post('/api/create_user', function(req, res) {
+    let hash = encrypter.hash(req.body.password, 10);
 
     var user = new playerSchemas.User({
-        name: req.body.name.trim(),
-        id: Math.floor(Math.random() * 999999999), //Random id
+        username: req.body.username,
         score: 0,
-        password: hash
+        password: hash,
     });
 
-    if(!encrypter.validate(req.body.password, hash))
-    {
-        return res.send("Password authentication error")
-    }
+    user.save(function(err, ret) {
+        if (err) {
+            return res.send({ error: true, errorText: "Username already exists."});
+        }
 
-    user.save(function(err) {
-        if(err) throw err
-        return res.send("Player saved! Your id is: " + parseInt(user.id))
-    })
-})
+        req.session.userID = ret._id;
+        return res.send({ error: false });
+    });
+});
+
+//Allow the user to create their own profile
+app.post('/api/login', function(req, res) {
+    playerSchemas.User.findOne({username: req.body.username}, "_id password", (err, user) => {
+        if (err) {
+            return res.send({ error: true, errorText: "Username does not exist."} );
+        }
+
+        console.log(user);
+        let userID = user._id;
+        let hash = user.password;    
+
+        if(!encrypter.validate(req.body.password, hash)) {
+            return res.send({ error: true, errorText: "Password is incorrect." });
+        }
+        
+        req.session.userID = userID;
+        return res.send({ error: false });
+    });
+});
 
 //Gets the users involved and checks their passwords
 app.get('/api/get_user/:user', function(req, res) {
@@ -147,7 +166,15 @@ app.get("/battles", function(req, res) {
         if(err) throw err
         return res.send(battle)
     });
-})
+});
+
+app.get("/editTeam", function(req, res) {
+    res.render("editTeam", {});
+});
+
+app.get("/login", function(req, res) {
+    res.render("login", {});
+});
 
 app.listen(process.env.PORT || 3000, function() {
     console.log('Listening on port 3000!');

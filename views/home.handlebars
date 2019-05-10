@@ -1,32 +1,4 @@
-<script src="/public/js/loadPic.js"></script>
-<script>
-    $(document).ready(() => {
-        {{#each data }}
-            loadPic(document.getElementById("canvas{{ id }}"), $("#input{{ id }}").val(), 10);
-        {{/each }}
-    });
-
-    function filterCanvasses(term) {
-        $(".canvasContainer").each(function() {
-            $(this).css("display", $(this).data("name").includes(term) ? "block" : "none");
-        });
-    }
-</script>
 <div class="searchWrapper">
-    <h1>Welcome to Pixels!</h1>
-    <div class="canvasses">
-        {{#each data}}
-        <div class="canvasContainer" data-name={{ name }}>
-            <a href="/id/{{ id }}">
-                <canvas id="canvas{{ id }}" width="160" height="160"></canvas>
-                <div class="overlay"><span>{{ name }}</span></div>
-            </a>
-            <input id="input{{ id }}" hidden value="{{ pixels }}">
-        </div>
-        {{/each }}
-    </div>
-    <div class="searchBar">
-        <i class="fa fa-search fa-2x" aria-hidden="true"></i>
-        <input type="text" placeholder="Search by name..." onkeyup="filterCanvasses(this.value)" />
-    </div>
+    <h1>Welcome to PolyWar!</h1>
+    
 </div>
