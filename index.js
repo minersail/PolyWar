@@ -1,9 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose')
+var dotenv = require('dotenv');
 var exphbs = require('express-handlebars');
-
-var startData = require("./startData.js");
+//var playerData = require("./players/player.js"); //Need to change this to MongoDB
 
 var app = express();
 
@@ -12,21 +13,81 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.engine('handlebars', exphbs({
     defaultLayout: 'main',
-    partialsDir: __dirname + '/views/partials/',
+    partialsDir: __dirname + '/views/partials/', //Need to change this.
 }));
 app.set('view engine', 'handlebars');
 app.use('/public', express.static('public'));
+
+//Load environment variables
+dotenv.load();
+console.log(process.env.MONGODB);
+
+//MongoDB Setup/Connection
+console.log(process.env.MONGODB)
+mongoose.connect(process.env.MONGODB);
+mongoose.connection.on('error', function() {
+    console.log('MongoDB Connection Error. Please make sure that MongoDB is running.');
+    process.exit(1);
+});
+
 
 /* Add whatever endpoints you need! Remember that your API endpoints must
  * have '/api' prepended to them. Please remember that you need at least 5
  * endpoints for the API, and 5 others.
  */
-let data = startData.data;
-let idCount = startData.data.length;
+//let data = startData.data;
+//let idCount = startData.data.length;
 
 app.get('/', function(req, res) {
     res.render('home', {data: [...data]});
 });
+
+app.post('/setup', function(req, res) {
+    /*
+    var player = new mongoose.Schema({
+        wins: {
+            type: Number,
+            required: true
+        },
+        losses: {
+            type: Number,
+            required: true
+        },
+        ties: {
+            type: Number,
+            required: true
+        },
+        name: {
+            type: String
+        },
+        date: {
+            type: String
+        },
+        author: {
+            type: String
+        },
+        lineup: [String]
+    });
+    */
+    
+    // Create new movie
+    var player = new Movie({
+        wins: req.body.wins,
+        losses: req.body.losses,
+        ties: req.body.ties,
+        name: req.body.name,
+        date: req.body.date,
+        author: req.body.author,
+        lineup: req.body.lineup.split(",")
+    });
+
+    // Save movie to database
+    player.save(function(err) {
+        if (err) throw err;
+        return res.send('Succesfully inserted movie.');
+    });
+});
+
 
 app.get('/submit', function(req, res) {
     res.render('submit', {});
