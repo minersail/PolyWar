@@ -77,27 +77,124 @@ var options = {
         password: 'GoteemBois'
     } 
 };
-
-request(options, function (error, response, body) {
-  if (error) throw new Error(error);
-
-  console.log(body);
-});
 ```
 
-### 3. View Data
+HTML form route: `/get_user/:user`
 
-GET endpoint route: `/api/...`
+GET endpoint route: `/api/get_user/:user`
 
-### 4. Search Data
+```javascript
+var options = { 
+    method: 'GET',
+    url: 'http://localhost:3000/api/get_user',
+    headers: { 
+        'content-type': 'application/x-www-form-urlencoded' 
+    },
+    form: {
 
-Search Field: `name`
+    } 
+};
+```
 
-### 5. Navigation Pages
+HTML form route: `/delete_user`
+
+DELETE endpoint route: `/api/delete_user`
+
+```javascript
+var options = { 
+    method: 'DELETE',
+    url: 'http://localhost:3000/api/delete_user',
+    headers: { 
+        'content-type': 'application/x-www-form-urlencoded' 
+    },
+    form: {
+        user: "Quinn"
+        password: "PEACH3$"
+    } 
+};
+```
+
+HTML form route: `/create_squadron`
+
+POST endpoint route: `/api/create_squadron`
+
+```javascript
+var options = { 
+    method: 'POST',
+    url: 'http://localhost:3000/api/create_squadron',
+    headers: { 
+        'content-type': 'application/x-www-form-urlencoded' 
+    },
+    form: {
+        units: "1,2,3,4,5,6,7,8,9,10,11,12"
+        name: "Benny"
+        id: 46521879
+    } 
+};
+```
+
+HTML form route: `/squadron/:id`
+
+GET endpoint route: `/api/squadron/:id`
+
+```javascript
+var options = { 
+    method: 'GET',
+    url: 'http://localhost:3000/api/squadron/:id',
+    headers: { 
+        'content-type': 'application/x-www-form-urlencoded' 
+    },
+    form: {
+        id: 46521879
+    } 
+};
+```
+
+HTML form route: `/delete_squadron`
+
+DELETE endpoint route: `/api/delete_squadron`
+
+```javascript
+var options = { 
+    method: 'DELETE',
+    url: 'http://localhost:3000/api/delete_squadron',
+    headers: { 
+        'content-type': 'application/x-www-form-urlencoded' 
+    },
+    form: {
+        name: "Quinn"
+        id: 46521879
+    } 
+};
+```
+
+HTML form route: `/battles`
+
+GET endpoint route: `/api/battles`
+
+```javascript
+var options = { 
+    method: 'GET',
+    url: 'http://localhost:3000/api/battles',
+    headers: { 
+        'content-type': 'application/x-www-form-urlencoded' 
+    },
+    form: {
+
+    } 
+};
+```
+
+### 3. Navigation Pages
 
 Navigation Filters
-1. Heavy Dogs -> `/heaviest`
-2. Select a Breed -> `/breed/:breed_name`
-3. Young Dog -> `/youngest`
-4. Random Dog -> `/random`
-5. Alphabetical Dogs -> `/alphabetical`
+1. Battle -> `/battle`
+2. Home -> `/`
+3. About -> `/about`
+4. Create Profile -> `/create_profile`
+5. Get User -> `/get_user/:user`
+6. Delete User -> `/delete_user`
+7. Create Squadron -> `/create_squadron`
+8. Get Squadrons -> `/squadrion/:id`
+9. Delete Squadron -> `/delete_squadron`
+10. View Battles -> `/battles`
