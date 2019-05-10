@@ -4,7 +4,7 @@ var logger = require('morgan');
 var mongoose = require('mongoose')
 var dotenv = require('dotenv');
 var exphbs = require('express-handlebars');
-//var playerData = require("./players/player.js"); //Need to change this to MongoDB
+var playerSchemas = require("./schemas/schemas.js"); //Need to change this to MongoDB
 
 var app = express();
 
