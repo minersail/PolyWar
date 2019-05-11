@@ -162,8 +162,6 @@ app.post('/api/edit_squadron', function(req, res) {
     playerSchemas.Squadron.findById(req.body.id, (err, squad) => {
         if (err) throw err;
 
-        console.log(err);
-        console.log(squad);
         if (squad.author !== req.session.userID) {
             return res.send("Not authorized.");
         }
@@ -230,12 +228,38 @@ app.get("/editTeam/:id", function(req, res) {
     });
 });
 
-app.get("/viewSquadrons/:id", function(req, res) {
-    playerSchemas.Squadron.find({author: req.params.id}, (err, squad) => {
+app.get("/viewTeam/:id", function(req, res) {
+    playerSchemas.Squadron.findById(req.params.id, (err, squad) => {
         if (err) throw err;
 
-        return res.render("squadrons", { userID: req.session.userID, squadrons: squad });
+        playerSchemas.User.findById(squad.author, (err, author) => {
+            if (err) throw err;
+
+            return res.render("viewTeam", { 
+                userID: req.session.userID,
+                units: squad.units,
+                author: author.username,
+                name: squad.name,
+                mine: squad.author === req.session.userID,
+            });
+        });
     });
+});
+
+app.get("/viewSquadrons/:id", function(req, res) {
+    playerSchemas.User.findById(req.params.id, (err, author) => {
+        if (err) throw err;
+
+        playerSchemas.Squadron.find({author: req.params.id}, (err, squad) => {
+            if (err) throw err;
+
+            return res.render("squadrons", { 
+                userID: req.session.userID,
+                squadrons: squad,
+                author: author.name,
+            });
+        });
+    })
 });
 
 app.get("/login", function(req, res) {

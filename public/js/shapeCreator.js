@@ -75,6 +75,22 @@ function svgTriangle(x, y, scale, document) {
 	return triangle;
 }
 
+function loadShape(x, y, id, document) {
+	let newShape;
+		
+	if (id === CIRCLE_ID) {
+		newShape = svgCircle(x, y, 1, document);
+	}
+	else if (id === SQUARE_ID) {
+		newShape = svgSquare(x, y, 1, document);
+	}
+	else if (id === TRIANGLE_ID) {
+		newShape = svgTriangle(x, y, 1, document);	
+	}
+
+	return newShape;
+}
+
 function createThumbnail(units) {
 	return units.reduce((acc, unit, i) => {
 		let x = i % 6;

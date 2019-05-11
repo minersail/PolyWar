@@ -1,8 +1,31 @@
+<title>View squadron {{ name }}</title>
 <script src="../public/js/shapeCreator.js"></script>
-<script src="../public/js/editTeam.js"></script>
+<script>
+	window.onload = function() {
+		SHAPES = $("#units").val().split(",").map(x => parseInt(x));
+		SHAPES.forEach((id, i) => {
+			if (id === 0) return;
 
-<div class="editContainer">
-	<h1>Edit <input id="editName" type="text" value="{{ name }}" /></h1>
+			let x = i % 6;
+			let y = Math.floor(i / 6);
+
+			let newShape = loadShape(x, y, id, document);
+
+			newShape.classList.add("viewUnit");
+			document.getElementById("lineup").appendChild(newShape);
+		});
+
+		if (document.getElementById("toEdit")) {
+			document.getElementById("toEdit").onclick = function() {
+				const id = document.location.href.split("/")[document.location.href.split("/").length - 1];
+				document.location.assign(`/editTeam/${ id }`);
+			}
+		}
+	}
+</script>
+
+<div class="container">
+	<h1>{{ name }} by {{ author }}</h1>
 	<svg id="lineup" height="200" width="600">
 		<defs>
 			<pattern id="smallGrid" width="100" height="100" patternUnits="userSpaceOnUse">
@@ -16,6 +39,8 @@
 
 		<rect id="bg" width="100%" height="100%" fill="url(#grid)" />
 	</svg>
-	<button id="finishEdit">Save!</button>
+	{{#if mine}}
+		<button id="toEdit" class="matButton">Edit!</button>
+	{{/if}}
 	<input id="units" type="text" hidden="hidden" value="{{ units }}" />
 </div>

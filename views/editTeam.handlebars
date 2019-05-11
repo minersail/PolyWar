@@ -1,7 +1,8 @@
+<title>Edit squadron {{ name }}</title>
 <script src="../public/js/shapeCreator.js"></script>
 <script src="../public/js/editTeam.js"></script>
 
-<div class="editContainer">
+<div class="container">
 	<h1>Edit <input id="editName" type="text" value="{{ name }}" /></h1>
 	<svg id="lineup" height="200" width="600">
 		<defs>
@@ -16,6 +17,6 @@
 
 		<rect id="bg" width="100%" height="100%" fill="url(#grid)" />
 	</svg>
-	<button id="finishEdit">Save!</button>
+	<button id="finishEdit" class="matButton">Save!</button>
 	<input id="units" type="text" hidden="hidden" value="{{ units }}" />
 </div>
