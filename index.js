@@ -11,9 +11,9 @@ var exphbs = require('express-handlebars');
 var logger = require('morgan');
 var app = express();
 
-//Custom Modules
-var playerSchemas = require("./schemas/schemas.js"); //Need to change this to MongoDB
-var encrypter = require("./password_handler.js")
+var playerSchemas = require("./schemas/schemas.js");
+var encrypter = require("./password_handler.js");
+var shapeCreator = require("./public/js/shapeCreator.js");
 
 //Sockets
 var http = require('http').Server(app);
@@ -26,7 +26,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({secret:'XASDASDA'}));
 app.engine('handlebars', exphbs({
     defaultLayout: 'main',
-    partialsDir: __dirname + '/views/partials/', //Need to change this.
+    helpers: {
+        "createThumbnail": shapeCreator.createThumbnail,
+    }
 }));
 app.set('view engine', 'handlebars');
 app.use('/public', express.static('public'));
@@ -42,7 +44,7 @@ mongoose.connection.on('error', function(e) {
     process.exit(1);
 });
 
-//This is an event listener
+//This is an event listener for sockets
 io.on('connection', function(socket) {
     socket.on('new squadron', function(msg) {
         console.log('Squadron Created');
@@ -52,9 +54,9 @@ io.on('connection', function(socket) {
         console.log('Edit Squadron');
         io.emit('edit squadron', msg);
     });
-    socket.on('delete squadron', function() {
+    socket.on('delete squadron', function(msg) {
         console.log('Squadron Deleted');
-        io.emit('deleted squadron', msg);
+        io.emit('delete squadron', msg);
     });
 });
 
@@ -66,7 +68,10 @@ io.on('connection', function(socket) {
  */
 
 app.get('/', function(req, res) {
-    res.render('home', {});
+    if (!req.session.userID) {
+        return res.redirect("/login");
+    }
+    return res.render('home', {userID: req.session.userID});
 });
 
 //Allow the user to create their own profile
@@ -91,7 +96,7 @@ app.post('/api/create_user', function(req, res) {
 //Allow the user to create their own profile
 app.post('/api/login', function(req, res) {
     playerSchemas.User.findOne({username: req.body.username}, "_id password", (err, user) => {
-        if (err) {
+        if (err || user === null) {
             return res.send({ error: true, errorText: "Username does not exist."} );
         }
 
@@ -130,33 +135,45 @@ app.delete("/api/delete_user", function(req, res){
     });
 }) 
 
-
-//Allows you to create the squadron based on the thingys
 app.post('/api/create_squadron', function(req, res) {
-    var setup = req.body.units.split("/^(\d+,){0,11}\d+$/")
-    setup = _.reduce(setup, function(memo, num){ 
-        if(memo.length < 12)
-        {
-            if(parseInt(num) != null) 
-                memo.push(parseInt(num)) 
-            else
-                memo.push(0)
-        }
-    }, []); //Converts your input into the units and then pushes 0's by default for dirty/unclean data
+    let units = req.body.units.split(",").map(x => parseInt(x));
 
-    var squadron = new mongoose.Schema({
+    var squadron = new playerSchemas.Squadron({
         name: req.body.name,
-        author: parseInt(req.body.id), 
-        units: setup,
+        author: req.session.userID,
+        units: units,
         wins: 0
     })
 
-    squadron.save(function(err) {
+    squadron.save(function(err, ret) {
         if(err) throw err
         io.emit("new squadron", squadron);
-        return res.send("Squadron saved!")
-    })
-})
+        return res.send(ret._id);
+    });
+});
+
+app.post('/api/edit_squadron', function(req, res) {
+    playerSchemas.Squadron.findById(req.body.id, (err, squad) => {
+        if (err) throw err;
+
+        console.log(err);
+        console.log(squad);
+        if (squad.author !== req.session.userID) {
+            return res.send("Not authorized.");
+        }
+    
+        const units = req.body.units.split(",").map(x => parseInt(x));
+    
+        playerSchemas.Squadron.findByIdAndUpdate(req.body.id, { 
+            units: units,
+            name: req.body.name,
+        }, (err, ret) => {
+            if (err) throw err
+            io.emit("edit squadron", squad);
+            return res.send({ error: false });
+        });
+    });
+});
 
 //Allows you to select the squadron based on id
 app.get('/api/squadron/:id/', function(req, res) {
@@ -190,12 +207,34 @@ app.get("/battles", function(req, res) {
     });
 });
 
-app.get("/editTeam", function(req, res) {
-    res.render("editTeam", {});
+app.get("/editTeam/:id", function(req, res) {
+    if (!req.session.userID) {
+        return res.redirect("/login");
+    }
+
+    playerSchemas.Squadron.findById(req.params.id, (err, squad) => {
+        if (req.session.userID !== squad.author) {
+            return res.send("Access denied.");
+        }
+
+        return res.render("editTeam", { 
+            userID: req.session.userID, 
+            units: squad.units,
+            name: squad.name,
+        });
+    });
+});
+
+app.get("/viewSquadrons/:id", function(req, res) {
+    playerSchemas.Squadron.find({author: req.params.id}, (err, squad) => {
+        if (err) throw err;
+
+        return res.render("squadrons", { userID: req.session.userID, squadrons: squad });
+    });
 });
 
 app.get("/login", function(req, res) {
-    res.render("login", {});
+    return res.render("login", {});
 });
 
 http.listen(process.env.PORT || 3000, function() {

@@ -25,6 +25,10 @@ h1 {
 	border-bottom: 3px solid var(--accentred);
 }
 
+button {
+	cursor: pointer;
+}
+
 /***** NAV */
 .nav {
 	position: absolute;
@@ -76,14 +80,61 @@ h1 {
 	min-height: 200px;
 }
 
-svg {
-	z-index: 2;
+/***** VIEW SQUAD */
+.viewSquadContainer {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: flex-start;
+
+	width: 80%;
+
+	margin-left: auto;
+	
+	padding: 50px;
 }
 
+.thumbnailContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+
+	margin: 10px;
+}
+
+/***** EDIT */
 .editUnit {
 	stroke: var(--fgcolor);
 	stroke-width: 3;
 	fill: var(--accentblue);
+}
+
+#editName {
+	font-size: 32px;
+	font-family: "Montserrat";
+
+	border: none;
+
+	text-align: center;
+}
+
+#editName:focus {
+	text-align: left;
+}
+
+#finishEdit {
+	background-color: var(--accentblue);
+	color: var(--fgcolor);
+	
+	border: none;
+
+	font-family: "Montserrat";
+	font-size: 28px;
+	padding: 10px 25px;
+	
+	box-shadow: 0px 3px 6px var(--midcolor);
 }
 
 .unit {
@@ -155,8 +206,6 @@ svg {
 .loginBox button {
 	background-color: var(--accentred);
 	border: none;
-
-	cursor: pointer;
 }
 
 #login {
