@@ -67,7 +67,7 @@ app.get('/', function(req, res) {
     playerSchemas.Squadron.find({}, function(err, squad) {
         if(err) throw err
         return res.render('home', {userID: req.session.userID});
-    });
+    })
 });
 
 app.get('/logout', function(req, res) {
@@ -177,9 +177,9 @@ app.post('/api/edit_squadron', function(req, res) {
 });
 
 app.get('/api/squadron/:id/', function(req, res) {
-    playerSchemas.Squadron.find({id: req.body.id}, function(err, squad) {
+    playerSchemas.Squadron.find({id: req.params.id}, function(err, squad) {
         if(err) throw err
-        if(user != null && squad.id == parseInt(req.body.id))
+        if(squad != null && squad.id == parseInt(req.params.id))
             return res.send(squad)
         else
             return res.send("No user found!")
@@ -216,7 +216,6 @@ app.post("/api/createBattle", function(req, res) {
 app.get("/battles", function(req, res) {
     playerSchemas.Battle.find({}, function(err, battle) {
         if(err) throw err;
-
         return res.send(battle);
     });
 });
@@ -330,7 +329,7 @@ app.get("/login", function(req, res) {
 });
 
 app.get("/about", function(req, res) {
-    return res.render("about", {});
+    return res.render("about", {userID: req.session.userID});
 });
 
 http.listen(process.env.PORT || 3000, function() {
