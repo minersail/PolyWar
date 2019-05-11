@@ -1,3 +1,4 @@
+<title>View squadron {{ name }}</title>
 <script src="../public/js/shapeCreator.js"></script>
 <script>
 	window.onload = function() {
@@ -16,7 +17,7 @@
 
 		if (document.getElementById("toEdit")) {
 			document.getElementById("toEdit").onclick = function() {
-				const id = document.location.split("/")[document.location.split("/").length - 1];
+				const id = document.location.href.split("/")[document.location.href.split("/").length - 1];
 				document.location.assign(`/editTeam/${ id }`);
 			}
 		}
