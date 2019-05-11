@@ -11,12 +11,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
 </head>
 <body>
+  {{#if userID }}
   <div class="nav">
     <i class="fas fa-child fa-4x"></i>
-    <i class="fas fa-chess-board fa-4x"></i>
+    <a href="/viewSquadrons/{{ userID }}"><i class="fas fa-chess-board fa-4x"></i></a>
     <i class="fas fa-pencil-alt fa-4x"></i>
     <i class="fas fa-dungeon fa-4x"></i>
   </div>
+  {{/if}}
   {{{body}}}
 </body>
 

@@ -1,0 +1,29 @@
+<script src="../public/js/shapeCreator.js"></script>
+<script>
+    window.onload = function() {
+        if (document.getElementById("newSquad")) {
+            document.getElementById("newSquad").onclick = function() {
+                $.post("/api/create_squadron", {
+                    name: $("#name").val(),
+                    units: Array(12).fill(0).join(","),
+                }, (res, status) => {
+                    document.location.assign(`/editTeam/${ res }`);
+                });
+            }
+        }
+    }
+</script>
+
+<div class="viewSquadContainer">
+    {{#each squadrons }}
+    <a class="thumbnailContainer" href="/">
+        <h2>{{ name }}</h2>
+        <div class="thumbnail">{{{createThumbnail units }}}</div>
+    </a>
+    {{/each }}
+
+    {{#if userID }}
+    <button id="newSquad">create</button>
+    <input id="name" type="text" val="squad name" />
+    {{/if }}
+</div>

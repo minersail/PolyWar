@@ -21,7 +21,7 @@ var squadron = new mongoose.Schema({
         type: String
     },
     author: {
-        type: Number
+        type: String
     },
     units: {
         type: [Number]
