@@ -21,6 +21,13 @@
 				document.location.assign(`/editTeam/${ id }`);
 			}
 		}
+
+		if (document.getElementById("toFight")) {
+			document.getElementById("toFight").onclick = function() {
+				const id = document.location.href.split("/")[document.location.href.split("/").length - 1];
+				document.location.assign(`/battleSelect/${ id }`);
+			}
+		}
 	}
 </script>
 
@@ -40,7 +47,10 @@
 		<rect id="bg" width="100%" height="100%" fill="url(#grid)" />
 	</svg>
 	{{#if mine}}
-		<button id="toEdit" class="matButton">Edit!</button>
-	{{/if}}
+		<button id="toEdit" class="matButton">edit</button>
+	{{else if userID }}
+		<button id="toFight" class="matButton red">fight</button>
+	{{/if}}	
+
 	<input id="units" type="text" hidden="hidden" value="{{ units }}" />
 </div>

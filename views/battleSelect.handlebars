@@ -1,0 +1,63 @@
+<title>Prepare to battle {{ name }}</title>
+<script src="../public/js/shapeCreator.js"></script>
+<script>
+	window.onload = function() {
+		SHAPES = $("#units").val().split(",").map(x => parseInt(x));
+		SHAPES.forEach((id, i) => {
+			if (id === 0) return;
+
+			let x = i % 6;
+			let y = Math.floor(i / 6);
+
+			let newShape = loadShape(x, y, id, document);
+
+			newShape.classList.add("viewUnit");
+			document.getElementById("lineup").appendChild(newShape);
+		});
+
+		document.getElementById("back").onclick = function() {
+			const id = document.location.href.split("/")[document.location.href.split("/").length - 1];
+			document.location.assign(`/viewTeam/${ id }`);
+		}
+	}
+
+	function startBattle(selected) {
+		const enemyId = document.location.href.split("/")[document.location.href.split("/").length - 1];
+		$.post("/api/createBattle", {
+			squad1: selected,
+			squad2: enemyId,
+		}, (res) => {
+			document.location.assign(`/battle/${ res }`);
+		});
+	}
+</script>
+
+<div class="battleSelectContainer">
+	<div class="battleSelect">
+		<h1>Your squadrons</h1>
+		{{#each squadrons }}
+		<a class="thumbnailContainer" onclick="startBattle('{{ id }}')">
+			<h2>{{ name }}</h2>
+			<div class="thumbnail">{{{createThumbnail units }}}</div>
+		</a>
+		{{/each }}
+	</div>
+	<div class="container">
+		<h1>Challenge {{ name }} by {{ opponent }}</h1>
+		<svg id="lineup" height="200" width="600">
+			<defs>
+				<pattern id="smallGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+					<path d="M 0,0 l 100,0 0,100 -100,0 0,-100" fill="none" stroke-width="1"/>
+				</pattern>
+				<pattern id="grid" width="600" height="600" patternUnits="userSpaceOnUse">
+					<rect width="600" height="200" fill="url(#smallGrid)"/>
+					<path d="M 0,0 l 600,0 0,200 -600,0 0,-200" fill="none" stroke-width="5"/>
+				</pattern>
+			</defs>
+
+			<rect id="bg" width="100%" height="100%" fill="url(#grid)" />
+		</svg>
+		<button id="back" class="matButton">back</button>
+		<input id="units" type="text" hidden="hidden" value="{{ units }}" />
+	</div>
+</div>

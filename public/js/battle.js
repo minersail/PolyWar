@@ -205,7 +205,7 @@ class TriangleProjectile extends Projectile {
 }
 
 function createCircle(x, y, scale, team) {
-	const circle = svgCircle(x, y, scale, document);
+	const circle = svgCircle(x, y, scale, document, TILE_SIZE);
 	const id = `unit${ global_id++ }`;
 
 	circle.setAttribute("id", id);
@@ -218,7 +218,7 @@ function createCircle(x, y, scale, team) {
 }
 
 function createSquare(x, y, scale, team) {
-	const square = svgSquare(x, y, scale, document);
+	const square = svgSquare(x, y, scale, document, TILE_SIZE);
 	const id = `unit${ global_id++ }`;
 
 	square.setAttribute("id", id);
@@ -231,7 +231,7 @@ function createSquare(x, y, scale, team) {
 }
 
 function createTriangle(x, y, scale, team) {
-	const triangle = svgTriangle(x, y, scale, document);
+	const triangle = svgTriangle(x, y, scale, document, TILE_SIZE);
 	const id = `unit${ global_id++ }`;
 
 	triangle.setAttribute("id", id);
@@ -280,10 +280,12 @@ function getDirection(dx, dy) {
 	}
 }
 
-let player1 = [0, 0, 0, 0, 1, 3, 3, 2, 0, 0, 2, 1];
-let player2 = [1, 3, 3, 0, 0, 0, 0, 0, 1, 2, 2, 0];
-
 window.onload = function() {
+	let player1 = $("#squad1").val().split(",").map(x => parseInt(x));
+	let player2 = $("#squad2").val().split(",").map(x => parseInt(x));
+	console.log(player1);
+	console.log(player2);
+
 	player1 = player1.map((x, i) =>
 		x === CIRCLE_ID ? { type: CIRCLE_ID, x: i % 6, y: Math.floor(i / 6) + 4, team: 0 } :
 		x === SQUARE_ID ? { type: SQUARE_ID, x: i % 6, y: Math.floor(i / 6) + 4, team: 0 } :		
@@ -296,11 +298,17 @@ window.onload = function() {
 		x === TRIANGLE_ID ? { type: TRIANGLE_ID, x: 5 - (i % 6), y: 1 - Math.floor(i / 6), team: 1 } : null
 	).filter(x => x !== null);
 
-	FIGHTERS = player1.flatMap((x, i) => [x, player2[i]]).map(x => 
-		x.type === CIRCLE_ID ? new CircleFighter(x.x, x.y, x.team) :
-		x.type === SQUARE_ID ? new SquareFighter(x.x, x.y, x.team) :
-		x.type === TRIANGLE_ID ? new TriangleFighter(x.x, x.y, x.team) : null	
-	);
+	console.log(player1);
+	console.log(player2);
+
+	FIGHTERS = player1.flatMap((x, i) => [x, player2[i]])
+		.concat(player2.slice(player1.length))
+		.filter(x => x !== undefined)
+		.map(x => 
+			x.type === CIRCLE_ID ? new CircleFighter(x.x, x.y, x.team) :
+			x.type === SQUARE_ID ? new SquareFighter(x.x, x.y, x.team) :
+			x.type === TRIANGLE_ID ? new TriangleFighter(x.x, x.y, x.team) : null	
+		);
 
 	window.setTimeout(() => {
 		queueAction(0);
@@ -308,13 +316,17 @@ window.onload = function() {
 }
 
 function queueAction(index) {
+	document.getElementById("winText").innerText = `Processing turn for unit ${ index }`;
 	if (FIGHTERS[index]) {
 		FIGHTERS[index].process();
+		
+		window.setTimeout(() => {
+			queueAction((index + 1) % FIGHTERS.length);
+		}, 1000);
 	}
-
-	window.setTimeout(() => {
+	else {
 		queueAction((index + 1) % FIGHTERS.length);
-	}, 1000);
+	}
 }
 
 function checkWin() {
