@@ -46,17 +46,13 @@ mongoose.connection.on('error', function(e) {
 
 //This is an event listener for sockets
 io.on('connection', function(socket) {
-    socket.on('new squadron', function(msg) {
-        console.log('Squadron Created');
-        io.emit('new squadron', msg);
-    });
-    socket.on('edit squadron', function(msg) {
+    socket.on('create/edit squadron', function(squad) {
         console.log('Edit Squadron');
-        io.emit('edit squadron', msg);
+        io.emit('edit squadron', squad);
     });
-    socket.on('delete squadron', function(msg) {
+    socket.on('delete squadron', function(squad) {
         console.log('Squadron Deleted');
-        io.emit('delete squadron', msg);
+        io.emit('delete squadron', squad);
     });
 });
 
@@ -68,10 +64,10 @@ io.on('connection', function(socket) {
  */
 
 app.get('/', function(req, res) {
-    /*if (!req.session.userID) {
-        return res.redirect("/login");
-    }*/
-    return res.render('home', {userID: req.session.userID});
+    playerSchemas.Squadron.find({}, function(err, squad) {
+        if(err) throw err
+        return res.render('home', {userID: req.session.userID});
+    });
 });
 
 app.get('/logout', function(req, res) {
@@ -151,9 +147,10 @@ app.post('/api/create_squadron', function(req, res) {
         wins: 0
     })
 
+    io.emit("edit squadron", squadron);
+
     squadron.save(function(err, ret) {
         if(err) throw err
-        io.emit("new squadron", squadron);
         return res.send(ret._id);
     });
 });
@@ -167,13 +164,14 @@ app.post('/api/edit_squadron', function(req, res) {
         }
     
         const units = req.body.units.split(",").map(x => parseInt(x));
-    
+        
+        io.emit("edit squadron", squad);
+
         playerSchemas.Squadron.findByIdAndUpdate(req.body.id, { 
             units: units,
             name: req.body.name,
         }, (err, ret) => {
-            if (err) throw err
-            io.emit("edit squadron", squad);
+            if(err) throw err
             return res.send({ error: false });
         });
     });

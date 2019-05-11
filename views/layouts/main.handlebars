@@ -12,7 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
 </head>
 <body>
-  {{#if userID }}
+  {{#if userID}}
   <div class="nav">
     <a href="/"><i class="fas fa-home fa-4x"></i></a>
     <i class="fas fa-pencil-alt fa-4x"></i>
@@ -28,18 +28,8 @@
   </div>
   {{/if}}
 
-  {{{body}}}
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-  <script>
-    var socket = io();
-    $('#box').submit(function(){
-        /* Do socket stuff */
-        $('#m').val('');
-        return false;
-    });
-  </script>
+  <div id="content">
+    {{{body}}}
+  </div>  
 </body>
-
 </html>

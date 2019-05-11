@@ -1,3 +1,26 @@
 <div class="searchWrapper">
     <h1>Welcome to PolyWar!</h1>
 </div>
+  
+<!--div class="viewSquadContainer">
+    {{#each squadrons}}
+        <a class="thumbnailContainer" href="/viewTeam/{{ id }}">
+            <h2>{{ name }}</h2>
+            <div class="thumbnail">{{{createThumbnail units }}}</div>
+        </a>
+    {{/each}}
+</div-->
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<script>
+    var socket = io();
+    socket.on('edit squadron', function(squad) {
+        $('#content').append($('<li>').text("Squadron has been created/edited " + squad.name));
+        //$('#content').append('<li><a href='{{msg}}'>Squadron has been made/edited</a>'));
+    });
+    socket.on('delete squadron', function(squad) {
+        $('#content').append($('<li>').text("Squadron has been deleted " + squad.name));
+        //$('#content').append($('<li><a href='{{msg}}'>').text("Squadron has been made/edited")</a>'));
+    });
+</script>

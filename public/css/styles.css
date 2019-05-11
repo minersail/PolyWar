@@ -229,3 +229,7 @@ button {
 #login {
 	background-color: var(--accentblue)
 }
+
+#content {
+	margin-left: 120px
+}
