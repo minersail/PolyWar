@@ -139,8 +139,6 @@ app.post('/api/edit_squadron', function(req, res) {
     playerSchemas.Squadron.findById(req.body.id, (err, squad) => {
         if (err) throw err;
 
-        console.log(err);
-        console.log(squad);
         if (squad.author !== req.session.userID) {
             return res.send("Not authorized.");
         }
@@ -200,6 +198,24 @@ app.get("/editTeam/:id", function(req, res) {
             userID: req.session.userID, 
             units: squad.units,
             name: squad.name,
+        });
+    });
+});
+
+app.get("/viewTeam/:id", function(req, res) {
+    playerSchemas.Squadron.findById(req.params.id, (err, squad) => {
+        if (err) throw err;
+
+        playerSchemas.User.findById(squad.author, (err, author) => {
+            if (err) throw err;
+
+            return res.render("viewTeam", { 
+                userID: req.session.userID,
+                units: squad.units,
+                author: author.username,
+                name: squad.name,
+                mine: squad.author === req.session.userID,
+            });
         });
     });
 });

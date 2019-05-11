@@ -13,7 +13,11 @@ window.onload = function() {
 		let x = i % 6;
 		let y = Math.floor(i / 6);
 
-		loadShape(x, y, id);
+		let newShape = loadShape(x, y, id, document);
+		
+		newShape.setAttribute("id", `unit${ i }`);
+		newShape.classList.add("editUnit");
+		document.getElementById("lineup").appendChild(newShape);
 	});
 
 	$("#editName").css("width", $("#editName").val().length * 0.7 + "em");
@@ -41,28 +45,14 @@ function detectClick(e) {
 	}
 
 	if (newID !== 0) {
-		loadShape(x, y, newID);
+		let newShape = loadShape(x, y, newID, document);
+		
+		newShape.setAttribute("id", `unit${ index }`);
+		newShape.classList.add("editUnit");
+		document.getElementById("lineup").appendChild(newShape);
 	}
 
 	SHAPES[index] = newID;
-}
-
-function loadShape(x, y, id) {
-	const index = y * EDIT_WIDTH + x;
-	let newShape;
-		
-	if (id === CIRCLE_ID) {
-		newShape = svgCircle(x, y, 1, document);
-	}
-	else if (id === SQUARE_ID) {
-		newShape = svgSquare(x, y, 1, document);
-	}
-	else if (id === TRIANGLE_ID) {
-		newShape = svgTriangle(x, y, 1, document);	
-	}
-	newShape.setAttribute("id", `unit${ index }`);
-	newShape.classList.add("editUnit");
-	document.getElementById("lineup").appendChild(newShape);
 }
 
 function submitTeam() {
