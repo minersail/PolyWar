@@ -1,26 +1,29 @@
-<div class="searchWrapper">
-    <h1>Welcome to PolyWar!</h1>
-</div>
-  
-<!--div class="viewSquadContainer">
-    {{#each squadrons}}
-        <a class="thumbnailContainer" href="/viewTeam/{{ id }}">
-            <h2>{{ name }}</h2>
-            <div class="thumbnail">{{{createThumbnail units }}}</div>
-        </a>
-    {{/each}}
-</div-->
-
+<title>polywar home</title>
+<script src="../public/js/shapeCreator.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 <script>
-    var socket = io();
-    socket.on('edit squadron', function(squad) {
-        $('#content').append($('<li>').text("Squadron has been created/edited " + squad.name));
-        //$('#content').append('<li><a href='{{msg}}'>Squadron has been made/edited</a>'));
-    });
-    socket.on('delete squadron', function(squad) {
-        $('#content').append($('<li>').text("Squadron has been deleted " + squad.name));
-        //$('#content').append($('<li><a href='{{msg}}'>').text("Squadron has been made/edited")</a>'));
-    });
+    window.onload = function() {
+        let socket = io();
+
+        socket.on("create squadron", (squad) => {
+            $(".viewSquadContainer").append(`
+            <a id="${ squad.id }" class="thumbnailContainer" href="/viewTeam/${ squad.id }">
+                <h2>${ squad.name }</h2>
+                <div class="thumbnail">${ createThumbnail(squad.units) }</div>
+            </a>`);
+        });
+    }
 </script>
+
+<div class="container">
+    <h1>Welcome to polywar!</h1>
+    
+    <div class="viewSquadContainer">
+        {{#each squadrons}}
+            <a id="{{ id }}" class="thumbnailContainer" href="/viewTeam/{{ id }}">
+                <h2>{{ name }}</h2>
+                <div class="thumbnail">{{{createThumbnail units }}}</div>
+            </a>
+        {{/each}}
+    </div>
+</div>

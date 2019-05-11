@@ -1,4 +1,5 @@
 <title>View all squadrons by {{ author }}</title>
+<script src="/socket.io/socket.io.js"></script>
 <script src="../public/js/shapeCreator.js"></script>
 <script>
     window.onload = function() {
@@ -8,6 +9,11 @@
                     name: $("#name").val(),
                     units: Array(12).fill(0).join(","),
                 }, (res, status) => {
+                    if (res) {
+                        let socket = io();
+                        socket.emit("create squadron", res);
+                    }
+
                     document.location.assign(`/editTeam/${ res }`);
                 });
             }

@@ -46,9 +46,12 @@ mongoose.connection.on('error', function(e) {
 
 //This is an event listener for sockets
 io.on('connection', function(socket) {
-    socket.on('create/edit squadron', function(squad) {
-        console.log('Edit Squadron');
-        io.emit('edit squadron', squad);
+    socket.on('create squadron', function(squadID) {
+        playerSchemas.Squadron.findById(squadID, (err, squad) => {
+            if (err) throw err;
+
+            io.emit("create squadron", { id: squad._id, units: squad.units, name: squad.name });
+        });
     });
     socket.on('delete squadron', function(squad) {
         console.log('Squadron Deleted');
@@ -64,20 +67,22 @@ io.on('connection', function(socket) {
  */
 
 app.get('/', function(req, res) {
-    playerSchemas.Squadron.find({}, function(err, squad) {
+    playerSchemas.Squadron.find({}, function(err, squadrons) {
         if(err) throw err
-        return res.render('home', {userID: req.session.userID});
+        return res.render('home', { userID: req.session.userID, squadrons: squadrons });
     });
 });
 
 app.get('/logout', function(req, res) {
     req.session.userID = "";
-    //console.log("Logged out: " + req.session.userID)
     return res.redirect('/');
 })
 
 //Allow the user to create their own profile
 app.post('/api/create_user', function(req, res) {
+    if (req.body.username === "") return res.send({ error: true, errorText: "Username cannot be empty."});
+    if (req.body.password === "") return res.send({ error: true, errorText: "Password cannot be empty."});
+
     let hash = encrypter.hash(req.body.password, 10);
 
     var user = new playerSchemas.User({
@@ -144,9 +149,7 @@ app.post('/api/create_squadron', function(req, res) {
         author: req.session.userID,
         units: units,
         wins: 0
-    })
-
-    io.emit("edit squadron", squadron);
+    });
 
     squadron.save(function(err, ret) {
         if(err) throw err
@@ -214,10 +217,10 @@ app.post("/api/createBattle", function(req, res) {
 });
 
 app.get("/battles", function(req, res) {
-    playerSchemas.Battle.find({}, function(err, battle) {
+    playerSchemas.Battle.find({}, function(err, battles) {
         if(err) throw err;
-
-        return res.send(battle);
+        
+        return res.render("viewBattles", { battles });
     });
 });
 

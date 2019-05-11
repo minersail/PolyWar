@@ -122,6 +122,22 @@ button {
 	min-height: 200px;
 }
 
+.viewBattlesContainer a {
+	display: block;
+	background-color: var(--midcolor);
+	color: var(--fgcolor);
+	font-size: 28px;
+
+	padding: 15px 25px;
+	margin: 10px 0;
+
+	text-decoration: none;	
+}
+
+.viewBattlesContainer a:hover {
+	box-shadow: 0px 3px 6px var(--midcolor);
+}
+
 /***** VIEW SQUAD */
 .viewSquadContainer {
 	display: flex;
@@ -299,6 +315,9 @@ button {
 	background-color: var(--accentblue)
 }
 
-#content {
-	margin-left: 120px
+.about {
+	width: 85%;
+	margin-left: auto;
+
+	padding: 50px;
 }

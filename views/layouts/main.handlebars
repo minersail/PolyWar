@@ -11,24 +11,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
 </head>
 <body>
-  {{#if userID}}
   <div class="nav">
     <a href="/"><i class="fas fa-home fa-4x"></i></a>
-    <i class="fas fa-pencil-alt fa-4x"></i>
+    <a href="/battles"><i class="fas fa-dungeon fa-4x"></i></a>
     <a href="/about"><i class="far fa-address-card fa-4x"></i></a>
+    
+    {{#if userID}}
     <a href="/viewSquadrons/{{ userID }}"><i class="fas fa-chess-board fa-4x"></i></a>
     <a href="/logout"><i class="fas fa-sign-out-alt fa-4x"></i></a>
-  </div>
-  {{else}}
-  <div class="nav">
-    <a href="/"><i class="fas fa-home fa-4x"></i></a>
-    <a href="/about"><i class="far fa-address-card fa-4x"></i></a>
+    {{else}}
     <a href="/login"><i class="fas fa-sign-in-alt fa-4x"></i></a>
+    {{/if}}
   </div>
-  {{/if}}
 
-  <div id="content">
-    {{{body}}}
-  </div>  
+  {{{body}}}
 </body>
 </html>

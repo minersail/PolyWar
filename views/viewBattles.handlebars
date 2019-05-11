@@ -1,0 +1,11 @@
+<title>View battles</title>
+
+<div class="container">
+	<div class="viewBattlesContainer">
+	{{#each battles}}
+		<a href="/battle/{{ id }}">
+			Battle {{@index}}
+		</a>
+	{{/each}}
+	</div>
+</div>

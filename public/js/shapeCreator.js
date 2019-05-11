@@ -53,14 +53,16 @@ function svgSquare(x, y, scale, document, boxSize) {
 }
 
 function svgTriangle(x, y, scale, document, boxSize) {
+	const defaultBox = boxSize === undefined;
+
 	boxSize = boxSize ? boxSize : scale * SHAPE_DIM;
 
-	const x1 = 50 * scale + (1 - scale) * boxSize / 2;
-	const y1 = 11 * scale + (1 - scale) * boxSize / 2;
-	const x2 = 90 * scale + (1 - scale) * boxSize / 2;
-	const y2 = 80 * scale + (1 - scale) * boxSize / 2;
-	const x3 = 10 * scale + (1 - scale) * boxSize / 2;
-	const y3 = 80 * scale + (1 - scale) * boxSize / 2;
+	const x1 = !defaultBox ? 50 * scale + (1 - scale) * boxSize / 2 : 50 * scale;
+	const y1 = !defaultBox ? 11 * scale + (1 - scale) * boxSize / 2 : 11 * scale;
+	const x2 = !defaultBox ? 90 * scale + (1 - scale) * boxSize / 2 : 90 * scale;
+	const y2 = !defaultBox ? 80 * scale + (1 - scale) * boxSize / 2 : 80 * scale;
+	const x3 = !defaultBox ? 10 * scale + (1 - scale) * boxSize / 2 : 10 * scale;
+	const y3 = !defaultBox ? 80 * scale + (1 - scale) * boxSize / 2 : 80 * scale;
 	
 	if (document === undefined) {
 		return `<polygon 

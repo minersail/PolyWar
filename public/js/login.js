@@ -1,20 +1,15 @@
 window.onload = function() {
-    document.getElementById("login").onclick = login;
-    document.getElementById("create").onclick = createUser;
+    document.getElementById("login").onclick = createEndpointFunction("/api/login");
+    document.getElementById("create").onclick = createEndpointFunction("/api/create_user");
 }
 
-function createUser() {
-    $.post("/api/create_user", {
-        username: $("input[name='username']").val(),        
-        password: $("input[name='password']").val()
-    }, responseHandler);
-}
-
-function login() {
-    $.post("/api/login", {
-        username: $("input[name='username']").val(),        
-        password: $("input[name='password']").val()
-    }, responseHandler);
+function createEndpointFunction(endpoint) {
+    return function() {        
+        $.post(endpoint, {
+            username: $("input[name='username']").val(),        
+            password: $("input[name='password']").val()
+        }, responseHandler);
+    }
 }
 
 function responseHandler(res, status) {
