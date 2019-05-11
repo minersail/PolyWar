@@ -34,7 +34,6 @@ app.set('view engine', 'handlebars');
 app.use('/public', express.static('public'));
 
 //MongoDB Setup/Connection
-console.log(process.env.MONGODB);
 mongoose.connect(process.env.MONGODB, {useNewUrlParser: true});
 mongoose.connection.on('error', function(e) {
     console.log(e);
