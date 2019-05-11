@@ -180,9 +180,9 @@ app.post('/api/edit_squadron', function(req, res) {
 });
 
 app.get('/api/squadron/:id/', function(req, res) {
-    playerSchemas.Squadron.find({id: req.body.id}, function(err, squad) {
+    playerSchemas.Squadron.find({id: req.params.id}, function(err, squad) {
         if(err) throw err
-        if(user != null && squad.id == parseInt(req.body.id))
+        if(squad != null && squad.id == parseInt(req.params.id))
             return res.send(squad)
         else
             return res.send("No user found!")
@@ -333,7 +333,7 @@ app.get("/login", function(req, res) {
 });
 
 app.get("/about", function(req, res) {
-    return res.render("about", {});
+    return res.render("about", {userID: req.session.userID});
 });
 
 http.listen(process.env.PORT || 3000, function() {
