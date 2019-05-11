@@ -4,9 +4,9 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var _ = require("underscore");
 var dotenv = require('dotenv').config();
-if (dotenv.error) {
-    throw result.error
-}
+// if (dotenv.error) {
+//     throw result.error
+// }
 var exphbs = require('express-handlebars');
 var logger = require('morgan');
 var app = express();
@@ -33,11 +33,8 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 app.use('/public', express.static('public'));
 
-let db;
 //MongoDB Setup/Connection
-mongoose.connect(process.env.MONGODB, {useNewUrlParser: true}).then((res) => {
-    db = res;
-});
+mongoose.connect(process.env.MONGODB, {useNewUrlParser: true});
 mongoose.connection.on('error', function(e) {
     console.log(e);
     console.log('MongoDB Connection Error. Please make sure that MongoDB is running.');
