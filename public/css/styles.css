@@ -40,7 +40,16 @@ button {
 	align-items: center;
 	height: 100%;
 
-	padding: 20px;
+	padding: 20px 50px;
+}
+
+.nav i {
+	position: relative;
+	color: var(--fgcolor);
+}
+
+.nav a:hover i {
+	left: 25px;
 }
 
 .container {
@@ -51,6 +60,39 @@ button {
 	flex-direction: column;
 	justify-content: space-around;
 	align-items: center;
+}
+
+.battleSelectContainer {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	width: 75%;
+	height: 100%;
+	margin-left: auto;
+
+	overflow-x: scroll;
+}
+
+.battleSelect {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	min-width: 200px;
+
+	overflow-y: scroll;
+
+	padding: 10px;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+/* Optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+    background: var(--accentred);
 }
 
 .battleContainer {	
@@ -88,11 +130,18 @@ button {
 	justify-content: space-around;
 	align-items: flex-start;
 
-	width: 80%;
+	width: 85%;
 
 	margin-left: auto;
 	
 	padding: 50px;
+}
+
+.newSquadContainer {
+	display: flex;
+	flex-direction: row;
+
+	box-shadow: 0px 3px 6px var(--midcolor);
 }
 
 .thumbnailContainer {
@@ -153,6 +202,26 @@ button {
 	padding: 10px 25px;
 	
 	box-shadow: 0px 3px 6px var(--midcolor);
+}
+
+.matButton.disabled {
+	background-color: var(--midcolor);
+}
+
+.matButton.red {
+	background-color: var(--accentred);
+}
+
+.matInput {	
+	width: 100%;
+	margin: 0;
+
+	font-family: "Montserrat";
+	font-size: 28px;
+	padding: 5px;
+
+	background-color: var(--bgcolor);
+	border: 1px solid var(--midcolor);	
 }
 
 .unit {

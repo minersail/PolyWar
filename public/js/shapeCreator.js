@@ -4,8 +4,8 @@ const SQUARE_ID = 2;
 const TRIANGLE_ID = 3;
 const THUMBNAIL_SCALE = 0.25;
 
-function svgCircle(x, y, scale, document) {
-	const boxSize = scale * SHAPE_DIM;
+function svgCircle(x, y, scale, document, boxSize) {
+	boxSize = boxSize ? boxSize : scale * SHAPE_DIM;
 	const center = boxSize / 2;
 	const size = 40 * scale;
 	
@@ -27,8 +27,8 @@ function svgCircle(x, y, scale, document) {
 	return circle;
 }
 
-function svgSquare(x, y, scale, document) {
-	const boxSize = scale * SHAPE_DIM;
+function svgSquare(x, y, scale, document, boxSize) {
+	boxSize = boxSize ? boxSize : scale * SHAPE_DIM;
 	const center = (boxSize - (80 * scale)) / 2;
 	const length = 80 * scale;
 
@@ -52,8 +52,8 @@ function svgSquare(x, y, scale, document) {
 	return square;
 }
 
-function svgTriangle(x, y, scale, document) {
-	const boxSize = scale * SHAPE_DIM;
+function svgTriangle(x, y, scale, document, boxSize) {
+	boxSize = boxSize ? boxSize : scale * SHAPE_DIM;
 
 	const x1 = 50 * scale + (1 - scale) * boxSize / 2;
 	const y1 = 11 * scale + (1 - scale) * boxSize / 2;

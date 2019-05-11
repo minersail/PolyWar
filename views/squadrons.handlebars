@@ -15,17 +15,21 @@
     }
 </script>
 
-<h1>Squadrons by {{ author }}</h1>
-<div class="viewSquadContainer">
-    {{#each squadrons }}
-    <a class="thumbnailContainer" href="/viewTeam/{{ id }}">
-        <h2>{{ name }}</h2>
-        <div class="thumbnail">{{{createThumbnail units }}}</div>
-    </a>
-    {{/each }}
+<div class="container">
+    <h1 class="title-mid">Squadrons by {{ author }}</h1>
+    <div class="viewSquadContainer">
+        {{#each squadrons }}
+        <a class="thumbnailContainer" href="/viewTeam/{{ id }}">
+            <h2>{{ name }}</h2>
+            <div class="thumbnail">{{{createThumbnail units }}}</div>
+        </a>
+        {{/each }}
+    </div>    
 
     {{#if userID }}
-    <button id="newSquad">create</button>
-    <input id="name" type="text" val="squad name" />
+    <div class="newSquadContainer">
+        <button id="newSquad" class="matButton">create</button>
+        <input id="name" type="text" class="matInput" val="squad name" />
+    </div>
     {{/if }}
 </div>

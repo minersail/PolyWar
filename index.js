@@ -106,7 +106,6 @@ app.post('/api/login', function(req, res) {
             return res.send({ error: true, errorText: "Username does not exist."} );
         }
 
-        console.log(user);
         let userID = user._id;
         let hash = user.password;    
 
@@ -203,10 +202,46 @@ app.delete('/api/delete_squadron', function(req, res) {
     });
 });
 
+app.post("/api/createBattle", function(req, res) {
+    const battle = new playerSchemas.Battle({
+        squad1: req.body.squad1,
+        squad2: req.body.squad2,
+    });
+
+    battle.save(function(err, ret) {
+        if (err) throw err;
+
+        return res.send(ret._id);
+    })    
+});
+
 app.get("/battles", function(req, res) {
-    playerSchemas.Squadron.find({}, function(err, battle) {
-        if(err) throw err
-        return res.send(battle)
+    playerSchemas.Battle.find({}, function(err, battle) {
+        if(err) throw err;
+
+        return res.send(battle);
+    });
+});
+
+app.get("/battle/:id", function(req, res) {
+    playerSchemas.Battle.findById(req.params.id, (err, battle) => {
+        if(err) throw err;
+        if (battle == null) res.send("Battle not found.");
+
+        playerSchemas.Squadron.findById(battle.squad1, (err, squad1) => {
+            if (err) throw err;
+            if (squad1 == null) res.send("Squadron not found.");
+            
+            playerSchemas.Squadron.findById(battle.squad2, (err, squad2) => {
+                if (err) throw err;
+                if (squad2 == null) res.send("Squadron not found.");
+
+                return res.render("battle", {
+                    squad1: squad1.units.join(","),
+                    squad2: squad2.units.join(","),
+                });
+            });
+        });
     });
 });
 
@@ -231,6 +266,7 @@ app.get("/editTeam/:id", function(req, res) {
 app.get("/viewTeam/:id", function(req, res) {
     playerSchemas.Squadron.findById(req.params.id, (err, squad) => {
         if (err) throw err;
+        if (squad === null) return res.send("Squad not found.");
 
         playerSchemas.User.findById(squad.author, (err, author) => {
             if (err) throw err;
@@ -249,6 +285,7 @@ app.get("/viewTeam/:id", function(req, res) {
 app.get("/viewSquadrons/:id", function(req, res) {
     playerSchemas.User.findById(req.params.id, (err, author) => {
         if (err) throw err;
+        if (author === null) return res.send("User not found.");
 
         playerSchemas.Squadron.find({author: req.params.id}, (err, squad) => {
             if (err) throw err;
@@ -256,10 +293,38 @@ app.get("/viewSquadrons/:id", function(req, res) {
             return res.render("squadrons", { 
                 userID: req.session.userID,
                 squadrons: squad,
-                author: author.name,
+                author: author.username,
             });
         });
     })
+});
+
+app.get("/battleSelect/:id", function(req, res) {
+    if (!req.session.userID) {
+        return res.redirect("/login");
+    }
+
+    playerSchemas.Squadron.findById(req.params.id, (err, squad) => {
+        if (err) throw err;
+        if (squad === null) return res.send("Squad not found.");
+
+        playerSchemas.User.findById(squad.author, (err, opponent) => {
+            if (err) throw err;
+                    
+            playerSchemas.Squadron.find({author: req.session.userID}, (err, squadrons) => {
+                if (err) throw err;
+    
+                return res.render("battleSelect", { 
+                    userID: req.session.userID,
+                    squadrons: squadrons,
+                    opponent: opponent.username,
+                    opponentID: req.params.id,
+                    units: squad.units,
+                    name: squad.name,
+                });
+            });
+        });
+    });
 });
 
 app.get("/login", function(req, res) {

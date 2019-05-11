@@ -24,6 +24,8 @@ window.onload = function() {
 
 	document.getElementById("editName").onchange = function() {
 		$("#editName").css("width", $("#editName").val().length * 0.7 + "em");
+		$("#finishEdit").css("background-color", "var(--accentblue)");
+		$("#editName").css("font-weight", "bold");
 	}
 
 	document.getElementById("finishEdit").onclick = submitTeam;
@@ -31,6 +33,7 @@ window.onload = function() {
 
 function detectClick(e) {
 	$("#grid path").css("stroke", "var(--accentred)");
+	$("#finishEdit").css("background-color", "var(--accentblue)");
 
 	const x = Math.floor((e.offsetX) / SHAPE_DIM);
 	const y = Math.floor((e.offsetY) / SHAPE_DIM);
@@ -63,6 +66,8 @@ function submitTeam() {
 	}, function(res) {
 		if (res.error === false) {
 			$("#grid path").css("stroke", "var(--midcolor)");
+			$("#finishEdit").css("background-color", "var(--midcolor)");
+			$("#editName").css("font-weight", "normal");
 		}
 	});
 }

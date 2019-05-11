@@ -1,0 +1,26 @@
+<script src="../public/js/shapeCreator.js"></script>
+<script src="../public/js/battle.js"></script>
+
+<div class="battleContainer">
+	<div class="battleInfo">
+		<div>
+			<h1>Fight!</h1>
+			<p id="winText"></p>
+		</div>
+	</div>
+	<svg id="arena" height="600" width="600">
+		<defs>
+			<pattern id="smallGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+				<path d="M 0,0 l 100,0 0,100 -100,0 0,-100" fill="none" stroke="gray" stroke-width="1"/>
+			</pattern>
+			<pattern id="grid" width="600" height="600" patternUnits="userSpaceOnUse">
+				<rect width="600" height="600" fill="url(#smallGrid)"/>
+				<path d="M 0,0 l 600,0 0,600 -600,0 0,-600" fill="none" stroke="gray" stroke-width="5"/>
+			</pattern>
+		</defs>
+
+		<rect id="bg" width="100%" height="100%" fill="url(#grid)" />
+	</svg>
+	<input id="squad1" type="text" hidden="hidden" value="{{ squad1 }}" />
+	<input id="squad2" type="text" hidden="hidden" value="{{ squad2 }}" />
+</div>
