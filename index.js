@@ -68,11 +68,17 @@ io.on('connection', function(socket) {
  */
 
 app.get('/', function(req, res) {
-    if (!req.session.userID) {
+    /*if (!req.session.userID) {
         return res.redirect("/login");
-    }
+    }*/
     return res.render('home', {userID: req.session.userID});
 });
+
+app.get('/logout', function(req, res) {
+    req.session.userID = "";
+    //console.log("Logged out: " + req.session.userID)
+    return res.redirect('/');
+})
 
 //Allow the user to create their own profile
 app.post('/api/create_user', function(req, res) {
@@ -122,7 +128,7 @@ app.get('/api/get_user/:user', function(req, res) {
         else
             return res.send("No user found!")
     });
-})
+});
 
 //Deletes the user with the specified username and password
 app.delete("/api/delete_user", function(req, res){
@@ -133,7 +139,7 @@ app.delete("/api/delete_user", function(req, res){
         else
             return res.send("No user found!")
     });
-}) 
+});
 
 app.post('/api/create_squadron', function(req, res) {
     let units = req.body.units.split(",").map(x => parseInt(x));
@@ -175,7 +181,6 @@ app.post('/api/edit_squadron', function(req, res) {
     });
 });
 
-//Allows you to select the squadron based on id
 app.get('/api/squadron/:id/', function(req, res) {
     playerSchemas.Squadron.find({id: req.body.id}, function(err, squad) {
         if(err) throw err
@@ -184,7 +189,7 @@ app.get('/api/squadron/:id/', function(req, res) {
         else
             return res.send("No user found!")
     });
-})
+});
 
 //Deletes name based on your squads name and ID (i.e. squad id)
 app.delete('/api/delete_squadron', function(req, res) {
@@ -198,7 +203,7 @@ app.delete('/api/delete_squadron', function(req, res) {
         else
             return res.send("No squad found!")
     });
-})
+});
 
 app.get("/battles", function(req, res) {
     playerSchemas.Squadron.find({}, function(err, battle) {
@@ -235,6 +240,10 @@ app.get("/viewSquadrons/:id", function(req, res) {
 
 app.get("/login", function(req, res) {
     return res.render("login", {});
+});
+
+app.get("/about", function(req, res) {
+    return res.render("about", {});
 });
 
 http.listen(process.env.PORT || 3000, function() {
