@@ -1,6 +1,5 @@
 var express = require('express');
 var session = require('express-session');
-
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var _ = require("underscore");
@@ -8,7 +7,6 @@ var dotenv = require('dotenv').config();
 if (dotenv.error) {
     throw result.error
 }
-
 var exphbs = require('express-handlebars');
 var logger = require('morgan');
 var app = express();
@@ -17,7 +15,11 @@ var playerSchemas = require("./schemas/schemas.js");
 var encrypter = require("./password_handler.js");
 var shapeCreator = require("./public/js/shapeCreator.js");
 
+//Sockets
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
+//Set up Handlebars
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -42,6 +44,22 @@ mongoose.connection.on('error', function(e) {
     process.exit(1);
 });
 
+//This is an event listener for sockets
+io.on('connection', function(socket) {
+    socket.on('new squadron', function(msg) {
+        console.log('Squadron Created');
+        io.emit('new squadron', msg);
+    });
+    socket.on('edit squadron', function(msg) {
+        console.log('Edit Squadron');
+        io.emit('edit squadron', msg);
+    });
+    socket.on('delete squadron', function(msg) {
+        console.log('Squadron Deleted');
+        io.emit('delete squadron', msg);
+    });
+});
+
 
 
 /* Add whatever endpoints you need! Remember that your API endpoints must
@@ -53,7 +71,6 @@ app.get('/', function(req, res) {
     if (!req.session.userID) {
         return res.redirect("/login");
     }
-
     return res.render('home', {userID: req.session.userID});
 });
 
@@ -71,7 +88,6 @@ app.post('/api/create_user', function(req, res) {
         if (err) {
             return res.send({ error: true, errorText: "Username already exists."});
         }
-
         req.session.userID = ret._id;
         return res.send({ error: false });
     });
@@ -131,6 +147,7 @@ app.post('/api/create_squadron', function(req, res) {
 
     squadron.save(function(err, ret) {
         if(err) throw err
+        io.emit("new squadron", squadron);
         return res.send(ret._id);
     });
 });
@@ -150,6 +167,7 @@ app.post('/api/edit_squadron', function(req, res) {
             name: req.body.name,
         }, (err, ret) => {
             if (err) throw err
+            io.emit("edit squadron", squad);
             return res.send({ error: false });
         });
     });
@@ -171,7 +189,10 @@ app.delete('/api/delete_squadron', function(req, res) {
     playerSchemas.Squadron.findOneAndDelete({name: req.body.name, id: req.body.id}, function(err, squad) {
         if(err) throw err
         if(squad != null && squad.name == req.body.name && squad.id == parseInt(req.body.id))
+        {
+            io.emit("delete squadron", squad);
             return res.delete(squad)
+        }
         else
             return res.send("No squad found!")
     });
@@ -232,6 +253,6 @@ app.get("/login", function(req, res) {
     return res.render("login", {});
 });
 
-app.listen(process.env.PORT || 3000, function() {
+http.listen(process.env.PORT || 3000, function() {
     console.log('Listening on port 3000!');
 });

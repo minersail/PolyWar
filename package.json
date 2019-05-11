@@ -19,6 +19,7 @@
         "express-session": "^1.16.1",
         "mongoose": "^5.5.7",
         "morgan": "^1.8.1",
+        "socket.io": "^2.2.0",
         "underscore": "^1.9.1"
     }
 }
